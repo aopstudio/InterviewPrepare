@@ -118,6 +118,15 @@ IoC的一个重点是在系统运行中，动态的向某个对象提供它所�
 
 2）Lock和synchronized有一点非常大的不同，采用synchronized不需要用户去手动释放锁，当synchronized方法或者synchronized代码块执行完之后，系统会自动让线程释放对锁的占用；而Lock则必须要用户去手动释放锁，如果没有主动释放锁，就有可能导致出现死锁现象。
 
+1. ReenTrantLock可以指定是公平锁还是非公平锁。而synchronized只能是非公平锁。所谓的公平锁就是先等待的线程先获得锁。
+
+2. ReenTrantLock提供了一个Condition（条件）类，用来实现分组唤醒需要唤醒的线程们，而不是像synchronized要么随机唤醒一个线程要么唤醒全部线程。
+
+## 可重入锁和不可重入锁
+可重入锁又名递归锁，是指在同一个线程在外层方法获取锁的时候，再进入该线程的内层方法会自动获取锁（前提锁对象得是同一个对象或者 class），不会因为之前已经获取过还没释放而阻塞。Java 中 ReentrantLock 和 synchronized 都是可重入锁，可重入锁的一个优点是可一定程度避免死锁。
+
+当A方法获取lock锁去锁住一段需要做原子性操作的B方法时，如果这段B方法又需要锁去做原子性操作，那么A方法就必定要与B方法出现死锁。这种会出现问题的重入一把锁的情况，叫不可重入锁。
+
 ## hashmap底层实现
 HashMap计算hash对key的hashcode进行了二次hash，以获得更好的散列值，然后对table数组长度取摸。
 
@@ -131,9 +140,9 @@ index = (n - 1) & hash。在 n 为 2次幂的情况下时，(n - 1) & hash ≈ h
 4. 红色节点的子节点不能是红色节点
 5. 根节点到每个叶子节点的路径上经过的黑色节点数量相同
 ## 为什么使用红黑树
-
+平衡性效果较好，插入和删除结点时需要的操作较少
 ## 什么时候转成红黑树
-
+HashMap中链表长度超过8
 
 ## HashMap和HashSet有什么关系？用HashMap实现HashSet该怎么做？
 HashSet的底层就是HashMap，可以说HashSet就是简化版的HashMap。只要不存value，只存key，HashMap就变成了HashSet
@@ -521,3 +530,81 @@ Java 语言目前定义了 51 个关键字，这些关键字不能作为变量�
 
 ## ThreadLocal
 用来提供线程内的局部变量，这样每个线程都自己管理自己的局部变量，别的线程操作的数据不会对我产生影响，互不影响
+
+## StringTokenizer作用
+
+## Java中创建对象的5种方法
+### 1. 使用new关键字
+这是最常见也是最简单的创建对象的方式了。通过这种方式，我们可以调用任意的构造函数(无参的和带参数的)。
+```java
+Employee emp1 = new Employee();
+0: new           #19          // class org/programming/mitra/exercises/Employee
+3: dup
+4: invokespecial #21          // Method org/programming/mitra/exercises/Employee."":()V
+```
+### 2. 使用Class类的newInstance方法
+我们也可以使用Class类的newInstance方法创建对象。这个newInstance方法调用无参的构造函数创建对象。
+
+我们可以通过下面方式调用newInstance方法创建对象:
+```java
+Employee emp2 = (Employee) Class.forName("org.programming.mitra.exercises.Employee").newInstance();
+```
+或者
+```java
+Employee emp2 = Employee.class.newInstance();
+51: invokevirtual    #70    // Method java/lang/Class.newInstance:()Ljava/lang/Object;
+```
+### 3. 使用Constructor类的newInstance方法
+和Class类的newInstance方法很像， java.lang.reflect.Constructor类里也有一个newInstance方法可以创建对象。我们可以通过这个newInstance方法调用有参数的和私有的构造函数。
+```java
+Constructor<Employee> constructor = Employee.class.getConstructor();
+Employee emp3 = constructor.newInstance();
+111: invokevirtual  #80  // Method java/lang/reflect/Constructor.newInstance:([Ljava/lang/Object;)Ljava/lang/Object;
+```
+这两种newInstance方法就是大家所说的反射。事实上Class的newInstance方法内部调用Constructor的newInstance方法。这也是众多框架，如Spring、Hibernate、Struts等使用后者的原因。
+
+### 4. 使用clone方法
+无论何时我们调用一个对象的clone方法，jvm就会创建一个新的对象，将前面对象的内容全部拷贝进去。用clone方法创建对象并不会调用任何构造函数。
+
+要使用clone方法，我们需要先实现Cloneable接口并实现其定义的clone方法。
+```java
+Employee emp4 = (Employee) emp3.clone();
+162: invokevirtual #87  // Method org/programming/mitra/exercises/Employee.clone ()Ljava/lang/Object;
+```
+### 5. 使用反序列化
+当我们序列化和反序列化一个对象，jvm会给我们创建一个单独的对象。在反序列化时，jvm创建对象并不会调用任何构造函数。
+
+为了反序列化一个对象，我们需要让我们的类实现Serializable接口
+```java
+ObjectInputStream in = new ObjectInputStream(new FileInputStream("data.obj"));
+Employee emp5 = (Employee) in.readObject();
+261: invokevirtual  #118   // Method java/io/ObjectInputStream.readObject:()Ljava/lang/Object;
+```
+我们从上面的字节码片段可以看到，除了第1个方法，其他4个方法全都转变为invokevirtual(创建对象的直接方法)，第一个方法转变为两个调用，new和invokespecial(构造函数调用)。
+
+# Java反射机制
+简单来说，反射机制指的是程序在运行时能够获取自身的信息。在java中，只要给定类的名字， 那么就可以通过反射机制来获得类的所有信息。 
+
+## 获取class的三种方法：
+### 1.通过字符串获取Class对象，这个字符串必须带上完整路径名
+Class studentClass = Class.forName("com.test.reflection.Student");
+### 2.通过类的class属性
+Class studentClass2 = Student.class;
+### 3.通过对象的getClass()函数
+Student studentObject = new Student();
+Class studentClass3 = studentObject.getClass();
+
+通过这三种方式获取到的 Class 对象是同一个，也就是说 Java 运行时，每一个类只会生成一个 Class 对象。
+
+## 获取成员变量
+获取字段有两个 API：getDeclaredFields和getFields。他们的区别是:getDeclaredFields用于获取所有声明的字段，包括公有字段和私有字段，getFields仅用来获取公有字段：
+
+## 获取构造方法
+获取构造方法同样包含了两个 API：用于获取所有构造方法的 getDeclaredConstructors和用于获取公有构造方法的getConstructors:
+
+## 获取非构造方法
+同样地，获取非构造方法的两个 API 是：获取所有声明的非构造函数的 getDeclaredMethods 和仅获取公有非构造函数的 getMethods：
+
+# 设置堆大小
+java –Xmx512m
+添加一个名为_JAVA_OPTIONS的系统环境变量，并在那里设置堆大小值
