@@ -25,6 +25,10 @@ ps                  显示瞬间进程状态 ps -aux
 
 du                  查看目录大小 du -h /home带有单位显示目录信息
 
+who：显示当前真正登录系统中的用户（不会显示那些用su命令切换用户的登录者）
+who am i: 显示当前登录时用的用户名，尽管切换了多个用户
+whoami: 显示当前用户的用户名
+
 tar 压缩解压文件
     压缩：-czvf 压缩文件名 源文件
     解压：-xzvf 压缩文件名
@@ -41,7 +45,13 @@ df                  查看磁盘大小 df -h 带有单位显示磁盘信息
 ifconfig          查看网络情况
 
 top                动态显示当前耗费资源最多进程信息
-
+yum     管理软件安装
+    安装软件 yum -y install
+    卸载 yum remove
+## yum服务器
+![yum服务器](images/yum服务器.jfif)
+## yum客户端
+![yum客户端](images/yum客户端.jfif)
 # linux文件系统权限
 4=r,2=w,1=x
 r 代表读，w 代表写，x 代表执行，
@@ -132,3 +142,4 @@ ls/ll、cd、mkdir、rm-rf、cp、mv、ps -ef | grep xxx、kill、free-m、tar -
 　　输入模式：编辑文件内容
 　　末行模式：保存退出(wq)、强制退出(q!)、显示文件行号(set number)
 　　在命令模式下，输入a或i即可切换到输入模式，输入冒号(:)即可切换到末行模式；在输入模式和末行模式下，按esc键切换到命令模式
+
