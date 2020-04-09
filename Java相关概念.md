@@ -482,7 +482,7 @@ final: 常量声明。 finally: 处理异常。 finalize: 帮助进行垃圾回�
 2. 匹配括号
 3. 计算后缀表达式
 
-## Java中实现多线程的两种方式
+## Java中实现多线程的方式
 
 1.  继承Thread类
 ```java
@@ -533,9 +533,61 @@ public class RunnableTest {
 }
 ```
 
-3.  两种方式的比较
+3. 实现Callable接口，重写call方法（有返回值）
+自定义类实现Callable接口时，必须指定泛型，该泛型即返回值的类型
 
-实际中往往采用实现Runnable接口，一方面因为java只支持单继承，继承了Thread类就无法再继续继承其它类，而且Runnable接口只有一个run方法；另一方面通过结果可以看出实现Runnable接口才是真正的多线程
+每次创建一个新的线程，都要创建一个新的Callable接口的实现类、
+
+如何启动线程？
+
+（1）创建一个Callable接口的实现类的对象
+
+（2）创建一个FutureTask对象，传入Callable类型的参数
+
+public FutureTask(Callable<V> callable){……}
+（3）调用Thread类重载的参数为Runnable的构造器创建Thread对象
+
+将FutureTask作为参数传递
+
+public class FutureTask<V> implements RunnableFuture<V>
+
+　　　　　　　　public interface RunnableFuture<V> extends Runnable, Future<V>
+
+如何获取返回值？
+
+调用FutureTask类的get()方法
+```java
+public class MyThread {
+
+    public static void main(String ards[]) throws InterruptedException, ExecutionException{
+
+        for(int i=0;i<10;i++){
+            Callable<Integer> implCallable = new ImplCallable();
+            FutureTask<Integer> futureTask = new FutureTask<Integer>(implCallable);
+            new Thread(futureTask).start();
+            System.out.println(Thread.currentThread().getName()+"----"+futureTask.get());
+        }
+
+        System.out.println(Thread.currentThread().getName());
+    }
+    
+}
+
+class ImplCallable implements Callable<Integer>{
+
+    @Override
+    public Integer call() throws Exception {
+        int result = 0;
+        for(int i=0;i<10;i++){
+            result += i;
+        }
+        System.out.println(Thread.currentThread().getName());
+        return result;
+    }
+
+}
+```
+4. 使用线程池（有返回值）
 
 ### start和run方法的区别
 
