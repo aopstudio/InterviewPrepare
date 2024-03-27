@@ -341,6 +341,10 @@ notify随机唤醒一个线程。notifyall唤醒全部进程。
 依赖反转原则： 依赖反转原则 认为一个方法应该遵从“依赖于抽象而不是一个实例” 的概念。依赖注入是该原则的一种实现方式。
 
 依赖倒置原则(Dependency Inversion Principle，DIP)规定：代码应当取决于抽象概念，而不是具体实现。
+
+### 合成复用原则
+尽量使用组合而不是继承
+
 ## 连接数据库步骤
 原生的jdbc操作数据库流程：
 1. 注册驱动程序：Class.forName(“com.mysql.jdbc.Driver”);
